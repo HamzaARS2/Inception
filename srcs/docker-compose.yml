@@ -1,0 +1,78 @@
+services:
+  mariadb:
+    networks:
+      - inception_net
+
+    build: ./requirements/mariadb/
+    image: mariadb
+    container_name: mariadb-c
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping"]
+      start_period: 3s
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+    volumes:
+      - mariadb-vdata:/var/lib/mysql
+
+  wordpress:
+    networks: 
+      - inception_net
+
+    build: ./requirements/wordpress/
+    image: wordpress
+    container_name: wordpress-c
+    depends_on: 
+      mariadb:
+        condition: service_healthy
+
+    environment:
+      - WP_DB_HOST=${WP_DB_HOST}
+      - WP_DB_NAME=${WP_DB_NAME}
+      - WP_DB_USER=${WP_DB_USER}
+      - WP_DB_PASSWORD=${WP_DB_PASSWORD}
+
+    volumes:
+      - wp-vdata:/var/www/html
+
+  nginx:
+    networks:
+      - inception_net
+
+    build: ./requirements/nginx/
+    image: nginx
+    container_name: nginx-c
+    depends_on:
+      - wordpress
+    ports:
+      - 443:443
+    volumes:
+      - ./requirements/nginx/certs:/etc/nginx/certs:ro
+      - wp-vdata:/var/www/html
+
+networks:
+  inception_net:
+    name: inception-network
+    driver: bridge
+
+volumes:
+  mariadb-vdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/helarras/data/mariadb
+  wp-vdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/helarras/data/wordpress
+# the bind/named volumes may need to be returned because there will be no volumes if we try to list them.
