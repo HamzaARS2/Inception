@@ -1,5 +1,6 @@
 services:
   mariadb:
+    restart: always
     networks:
       - inception_net
 
@@ -23,6 +24,7 @@ services:
       - mariadb-vdata:/var/lib/mysql
 
   wordpress:
+    restart: always
     networks: 
       - inception_net
 
@@ -43,6 +45,7 @@ services:
       - wp-vdata:/var/www/html
 
   nginx:
+    restart: always
     networks:
       - inception_net
 
@@ -75,4 +78,3 @@ volumes:
       type: none
       o: bind
       device: /home/helarras/data/wordpress
-# the bind/named volumes may need to be returned because there will be no volumes if we try to list them.
