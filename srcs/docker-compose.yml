@@ -40,6 +40,10 @@ services:
       - WP_DB_NAME=${WP_DB_NAME}
       - WP_DB_USER=${WP_DB_USER}
       - WP_DB_PASSWORD=${WP_DB_PASSWORD}
+      - WP_REDIS_HOST=${WP_REDIS_HOST}
+      - WP_REDIS_PORT=${WP_REDIS_PORT}
+      - WP_REDIS_DATABASE=${WP_REDIS_DATABASE}
+      - WP_CACHE_KEY_SALT=${WP_CACHE_KEY_SALT}
 
     volumes:
       - wp-vdata:/var/www/html
@@ -59,6 +63,24 @@ services:
     volumes:
       - ./requirements/nginx/certs:/etc/nginx/certs:ro
       - wp-vdata:/var/www/html
+
+  redis:
+    restart: always
+    networks:
+      - inception_net
+
+    build: ./requirements/redis/
+    image: redis
+    container_name: redis-c
+    depends_on:
+      - wordpress
+    ports:
+      - 6379:6379
+    environment:
+      - WP_REDIS_HOST=${WP_REDIS_HOST}
+      - WP_REDIS_PORT=${WP_REDIS_PORT}
+      - WP_REDIS_DATABASE=${WP_REDIS_DATABASE}
+      - WP_CACHE_KEY_SALT=${WP_CACHE_KEY_SALT}
 
 networks:
   inception_net:
