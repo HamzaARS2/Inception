@@ -35,6 +35,7 @@ if ! wp core is-installed --allow-root 2>/dev/null; then
 		--admin_password=$WP_DB_PASSWORD \
 		--admin_email=wpuser@gmail.com \
 		--allow-root
+	chown -R www-data:www-data ./wp-content
 else
 	echo "WORDPRESS IS ALREADY INSTALLED!!!!!!!"
 

@@ -40,6 +40,8 @@ services:
       - WP_DB_NAME=${WP_DB_NAME}
       - WP_DB_USER=${WP_DB_USER}
       - WP_DB_PASSWORD=${WP_DB_PASSWORD}
+      - WP_WEBSITE_URL=${WP_WEBSITE_URL}
+      - WP_WEBSITE_TTILE=${WP_WEBSITE_TTILE}
       - WP_REDIS_HOST=${WP_REDIS_HOST}
       - WP_REDIS_PORT=${WP_REDIS_PORT}
       - WP_REDIS_DATABASE=${WP_REDIS_DATABASE}
@@ -81,6 +83,27 @@ services:
       - WP_REDIS_PORT=${WP_REDIS_PORT}
       - WP_REDIS_DATABASE=${WP_REDIS_DATABASE}
       - WP_CACHE_KEY_SALT=${WP_CACHE_KEY_SALT}
+  
+  ftp:
+    restart: always
+    networks:
+    - inception_net
+
+    build: ./requirements/ftp/
+    image: ftp
+    container_name: ftp-c
+    depends_on:
+      - wordpress
+    ports:
+      - 21:21
+      - 30000-30010:30000-30010
+    environment:
+      - FTP_USER=${FTP_USER}
+      - FTP_PASSWORD=${FTP_PASSWORD}
+      - FTP_DIR=${FTP_DIR}
+
+    volumes:
+      - wp-vdata:/home/ftpuser
 
 networks:
   inception_net:
