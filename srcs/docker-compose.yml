@@ -60,11 +60,16 @@ services:
     container_name: nginx-c
     depends_on:
       - wordpress
+      - adminer
     ports:
       - 443:443
+      - 4001:4000
     volumes:
       - ./requirements/nginx/certs:/etc/nginx/certs:ro
+      - ./requirements/nginx/conf/:/etc/nginx/conf.d/
       - wp-vdata:/var/www/html
+      - adminer-vdata:/var/www/adminer
+
 
   redis:
     restart: always
@@ -116,6 +121,19 @@ services:
     ports:
       - 8080:8080
 
+  adminer:
+    restart: always
+    networks:
+      - inception_net
+
+    build: ./requirements/adminer/
+    image: adminer
+    container_name: adminer-c
+    ports:
+      - 4000:4000
+    volumes:
+      - adminer-vdata:/var/www/adminer
+    
 
 networks:
   inception_net:
@@ -135,3 +153,9 @@ volumes:
       type: none
       o: bind
       device: /home/helarras/data/wordpress
+  adminer-vdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/helarras/data/adminer
